@@ -13,4 +13,14 @@ describe Video do
     monk = Video.create!(title: "Monk", description: "Monk description", category: dramas)
     expect(monk.category).to eq(dramas)
   end
+
+  it "does not save a video without a title" do 
+    monk = Video.create(description: "Monk description")
+    expect(Video.count).to eq(0)
+  end
+
+  it "doe not save a video without a description" do
+    monk = Video.create(title: "Monk")
+    expect(Video.count).to eq(0)
+  end
 end
