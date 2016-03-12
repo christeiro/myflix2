@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   before_action :set_params, only: [:create]
   def new
+    redirect_to home_path if current_user
     @user = User.new
   end
 
