@@ -5,7 +5,7 @@ Myflix::Application.routes.draw do
     collection do
       get 'search', to: 'videos#search'
     end
-    resource :review, only: [ :create ]
+    resources :reviews, only: [ :create ]
   end
   resources :categories, only: [ :show ]
   get 'ui(/:action)', controller: 'ui'
