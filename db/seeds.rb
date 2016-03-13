@@ -20,8 +20,12 @@ hospital = Video.create!(title: "Hospital", description: "Description of Hospita
 viking = Video.create!(title: "Viking", description: "Description of Viking", small_cover_url: "/tmp/south_park.jpg", large_cover_url: "/tmp/south_park.jpg", category: cartoons)
 mouse = Video.create!(title: "Mouse", description: "Description of Mouse", small_cover_url: "/tmp/futurama.jpg", large_cover_url: "/tmp/futurama.jpg", category: cartoons)
 
-user_mike = User.create(full_name: Faker::Name.name, email: Faker::Internet.email('mike'), password: Faker::Internet.password)
-user_ted = User.create(full_name: Faker::Name.name, email: Faker::Internet.email('ted'), password: Faker::Internet.password)
+user_mike = User.create!(full_name: Faker::Name.name, email: Faker::Internet.email('mike'), password: Faker::Internet.password)
+user_ted = User.create!(full_name: Faker::Name.name, email: Faker::Internet.email('ted'), password: Faker::Internet.password)
+user_test = User.create!(full_name: "Test user", email: "test@test.ee", password: "test")
 
 mouse_review1 = Review.create!(rating: 3, description: Faker::Lorem.paragraph(2), video: mouse, user: user_mike)
 mouse_review2 = Review.create!(rating: 5, description: Faker::Lorem.paragraph(2), video: mouse, user: user_ted)
+
+queue_item1 = QueueItem.create!(user: user_test, video: southpark)
+queue_item2 = QueueItem.create!(user: user_test, video: monk)
