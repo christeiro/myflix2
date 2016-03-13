@@ -17,7 +17,8 @@
             - @queue_items.each do |queue_item|
               %tr
                 %td
-                  %input.form-control(type="text" value="1")
+                  = queue_item.position
+                  / %input.form-control(type="text" value="1")
                 %td
                   = link_to queue_item.video.title, queue_item.video
                 %td
