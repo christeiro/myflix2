@@ -14,7 +14,7 @@
               %th(width="15%") Genre
               %th(width="15%") Remove
           %tbody
-            = @queue_items.each do |queue_item|
+            - @queue_items.each do |queue_item|
               %tr
                 %td
                   %input.form-control(type="text" value="1")
