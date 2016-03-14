@@ -93,5 +93,87 @@ describe QueueItemsController do
       delete :destroy, id: 1
       expect(response).to redirect_to sign_in_path
     end
+    it "normalizes the remaining queue items" do
+      user = Fabricate(:user)
+      session[:user_id] = user.id 
+      queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+      queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+      delete :destroy, id: queue_item1.id
+      expect(queue_item2.reload.position).to eq(1)  
+    end
+  end
+
+  describe "POST update_queue" do
+    context "with valid input" do
+      it "redirects to the my queue page" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id 
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 2}, {id: queue_item2.id, position: 1}]
+        expect(response).to redirect_to my_queue_path
+      end
+      it "reorders the queue items" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 2}, {id: queue_item2.id, position: 1}]
+        expect(user.queue_items).to eq([queue_item2, queue_item1]) 
+      end
+      it "normalizes the position numbers" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 3}, {id: queue_item2.id, position: 2}]
+        expect(user.queue_items.map(&:position)).to eq([1,2]) 
+      end
+    end
+
+    context "with invalid input" do
+      it "redirects to the my queue page" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 3.4}, {id: queue_item2.id, position: 2}]
+        expect(response).to redirect_to my_queue_path
+      end
+      it "sets the flash error message" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 3.4}, {id: queue_item2.id, position: 2}]
+        expect(flash[:error]).to be_present
+      end
+      it "does not change the queue items" do
+        user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 3}, {id: queue_item2.id, position: 2.1}]
+        expect(queue_item1.reload.position).to eq(1)
+      end
+    end
+    context "with unauthenticated users" do
+      it "should redirect to sing in path" do
+        post :update_queue, queue_items:  [{id: 1, position: 3}, {id: 2, position: 2}]
+        expect(response).to redirect_to sign_in_path
+      end
+    end
+    context "with queue items that do not belongs to the current user" do
+      it "does not change the queue items" do
+        user = Fabricate(:user)
+        other_user = Fabricate(:user)
+        session[:user_id] = user.id
+        queue_item1 = Fabricate(:queue_item, user: user, position: 1)
+        queue_item2 = Fabricate(:queue_item, user: other_user, position: 2)
+        post :update_queue, queue_items:  [{id: queue_item1.id, position: 2}, {id: queue_item2.id, position: 1}]
+        expect(queue_item2.reload.position).to eq(2)
+      end
+    end
+
   end
 end 
